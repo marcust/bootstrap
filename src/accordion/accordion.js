@@ -15,6 +15,9 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
     if ( closeOthers ) {
       angular.forEach(this.groups, function (group) {
         if ( group !== openGroup ) {
+          if ( group.onToggle && group.isOpen ) {
+            group.onToggle( {'newState' : false} );
+          }
           group.isOpen = false;
         }
       });
@@ -64,7 +67,8 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
     scope: {
       heading: '@',               // Interpolate the heading attribute onto this scope
       isOpen: '=?',
-      isDisabled: '=?'
+      isDisabled: '=?',
+      onToggle: '&onToggle'
     },
     controller: function() {
       this.setHeading = function(element) {
@@ -83,6 +87,7 @@ angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
       scope.toggleOpen = function() {
         if ( !scope.isDisabled ) {
           scope.isOpen = !scope.isOpen;
+          scope.onToggle({ 'newState': scope.isOpen});
         }
       };
     }

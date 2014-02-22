@@ -410,5 +410,57 @@ describe('accordion', function () {
       });
     });
 
+    describe('on-toggle callback', function() {
+      it('should be called when state is toggled to open', function() {
+        scope.onToggleCallback = angular.noop;
+        spyOn( scope, 'onToggleCallback' );
+        element = $compile('<accordion><accordion-group heading="test" on-toggle="onToggleCallback(newState)"></accordion-group></accordion>')(scope);
+
+        scope.$digest();
+        groups = element.find('.panel');
+        findGroupLink(0).click();
+        scope.$digest();
+        expect( scope.onToggleCallback ).toHaveBeenCalledWith( true );
+      });
+
+      it('should be called when state is toggled to closed', function() {
+        scope.onToggleCallback = angular.noop;
+        scope.open = true;
+        spyOn( scope, 'onToggleCallback' );
+        element = $compile('<accordion><accordion-group heading="test" is-open="open" on-toggle="onToggleCallback(newState)"></accordion-group></accordion>')(scope);
+
+        scope.$digest();
+        groups = element.find('.panel');
+        findGroupLink(0).click();
+        scope.$digest();
+        expect( scope.onToggleCallback ).toHaveBeenCalledWith( false );
+      });
+
+      it('should be called close others is in effect', function() {
+        scope.onToggleCallbackFirst = angular.noop;
+        scope.onToggleCallbackSecond = angular.noop;
+        scope.open = true;
+        spyOn( scope, 'onToggleCallbackFirst' );
+        spyOn( scope, 'onToggleCallbackSecond' );
+        element = $compile('<accordion close-others="true">' +
+                           '<accordion-group heading="test" is-open="open" on-toggle="onToggleCallbackFirst(newState)">' +
+                           '</accordion-group>' +
+                           '<accordion-group heading="test" on-toggle="onToggleCallbackSecond(newState)">'+
+                           '</accordion-group>'+
+                           '</accordion>')(scope);
+
+        scope.$digest();
+        groups = element.find('.panel');
+        findGroupLink(1).click();
+        scope.$digest();
+        expect( scope.onToggleCallbackFirst ).toHaveBeenCalledWith( false );
+        expect( scope.onToggleCallbackSecond ).toHaveBeenCalledWith( true );
+      });
+
+
+
+
+    });
+
   });
 });
